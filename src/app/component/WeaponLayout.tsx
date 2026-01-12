@@ -4,6 +4,45 @@ import { useState, useEffect, useCallback, useRef } from "react";
 import { Weapon } from "@/app/types/valorant";
 import { WeaponFrame } from "./WeaponFrame";
 
+const layoutConfig = [
+  [
+    {
+      title: "Sidearms",
+      items: ["Classic", "Shorty", "Frenzy", "Ghost", "Bandit", "Sheriff"],
+    },
+  ],
+  [
+    {
+      title: "SMGs",
+      items: ["Stinger", "Spectre"],
+    },
+    {
+      title: "Shotguns",
+      items: ["Bucky", "Judge"],
+    },
+  ],
+  [
+    {
+      title: "Rifles",
+      items: ["Bulldog", "Guardian", "Phantom", "Vandal"],
+    },
+    {
+      title: "Melee",
+      items: ["Melee"],
+    },
+  ],
+  [
+    {
+      title: "Snipers",
+      items: ["Marshal", "Outlaw", "Operator"],
+    },
+    {
+      title: "Machine Guns",
+      items: ["Ares", "Odin"],
+    },
+  ],
+];
+
 export function WeaponLayout({ weapons }: { weapons: Record<string, Weapon> }) {
   const [selected, setSelected] = useState<string | null>(null);
   const [excluded, setExcluded] = useState<string[]>([]);
@@ -71,6 +110,19 @@ export function WeaponLayout({ weapons }: { weapons: Record<string, Weapon> }) {
     );
   };
 
+  const toggleGroup = (items: string[]) => {
+    if (isSpinning) return;
+
+    const allExcluded = items.every((item) => excluded.includes(item));
+
+    if (allExcluded) {
+      setExcluded((prev) => prev.filter((item) => !items.includes(item)));
+    } else {
+      const newExclusions = items.filter((item) => !excluded.includes(item));
+      setExcluded((prev) => [...prev, ...newExclusions]);
+    }
+  };
+
   const getStatus = (name: string) => {
     if (excluded.includes(name)) return "excluded";
     if (selected === name) return "selected";
@@ -82,149 +134,44 @@ export function WeaponLayout({ weapons }: { weapons: Record<string, Weapon> }) {
   return (
     <div className="min-h-screen w-full flex items-center justify-center bg-zinc-900 p-8 overflow-x-auto">
       <div className="flex gap-6">
-        <div className={columnClass}>
-          <h2 className="text-white text-center text-lg font-bold uppercase tracking-wider">
-            Sidearms
-          </h2>
-          <div className="flex flex-col gap-2">
-            {["Classic", "Shorty", "Frenzy", "Ghost", "Bandit", "Sheriff"].map(
-              (name) => (
-                <div
-                  key={name}
-                  onClick={() => toggleWeapon(name)}
-                  className={isSpinning ? "cursor-not-allowed opacity-80" : ""}
+        {layoutConfig.map((column, colIndex) => (
+          <div key={colIndex} className="flex flex-col gap-8">
+            {column.map((group) => (
+              <div key={group.title} className={columnClass}>
+                <h2
+                  onClick={() => toggleGroup(group.items)}
+                  className={`text-white text-center text-lg font-bold uppercase tracking-wider cursor-pointer select-none transition-opacity hover:opacity-80 ${
+                    isSpinning ? "cursor-not-allowed opacity-50" : ""
+                  }`}
                 >
-                  <WeaponFrame
-                    weapon={weapons[name]}
-                    status={getStatus(name)}
-                  />
-                </div>
-              ),
-            )}
-          </div>
-        </div>
+                  {group.title}
+                </h2>
 
-        <div className="flex flex-col gap-8">
-          <div className={columnClass}>
-            <h2 className="text-white text-center text-lg font-bold uppercase tracking-wider">
-              SMGs
-            </h2>
-            <div className="flex flex-col gap-2">
-              {["Stinger", "Spectre"].map((name) => (
-                <div
-                  key={name}
-                  onClick={() => toggleWeapon(name)}
-                  className={isSpinning ? "cursor-not-allowed opacity-80" : ""}
-                >
-                  <WeaponFrame
-                    weapon={weapons[name]}
-                    status={getStatus(name)}
-                  />
-                </div>
-              ))}
-            </div>
-          </div>
+                <div className="flex flex-col gap-2">
+                  {group.items.map((name) => {
+                    const weaponData = weapons[name];
+                    if (!weaponData) return null;
 
-          <div className={columnClass}>
-            <h2 className="text-white text-center text-lg font-bold uppercase tracking-wider">
-              Shotguns
-            </h2>
-            <div className="flex flex-col gap-2">
-              {["Bucky", "Judge"].map((name) => (
-                <div
-                  key={name}
-                  onClick={() => toggleWeapon(name)}
-                  className={isSpinning ? "cursor-not-allowed opacity-80" : ""}
-                >
-                  <WeaponFrame
-                    weapon={weapons[name]}
-                    status={getStatus(name)}
-                  />
+                    return (
+                      <div
+                        key={name}
+                        onClick={() => toggleWeapon(name)}
+                        className={
+                          isSpinning ? "cursor-not-allowed opacity-80" : ""
+                        }
+                      >
+                        <WeaponFrame
+                          weapon={weaponData}
+                          status={getStatus(name)}
+                        />
+                      </div>
+                    );
+                  })}
                 </div>
-              ))}
-            </div>
-          </div>
-        </div>
-
-        <div className="flex flex-col gap-8">
-          <div className={columnClass}>
-            <h2 className="text-white text-center text-lg font-bold uppercase tracking-wider">
-              Rifles
-            </h2>
-            <div className="flex flex-col gap-2">
-              {["Bulldog", "Guardian", "Phantom", "Vandal"].map((name) => (
-                <div
-                  key={name}
-                  onClick={() => toggleWeapon(name)}
-                  className={isSpinning ? "cursor-not-allowed opacity-80" : ""}
-                >
-                  <WeaponFrame
-                    weapon={weapons[name]}
-                    status={getStatus(name)}
-                  />
-                </div>
-              ))}
-            </div>
-          </div>
-          <div className={columnClass}>
-            <h2 className="text-white text-center text-lg font-bold uppercase tracking-wider">
-              Melee
-            </h2>
-            <div className="flex flex-col gap-2">
-              <div
-                onClick={() => toggleWeapon("Melee")}
-                className={isSpinning ? "cursor-not-allowed opacity-80" : ""}
-              >
-                <WeaponFrame
-                  weapon={weapons["Melee"]}
-                  status={getStatus("Melee")}
-                />
               </div>
-            </div>
+            ))}
           </div>
-        </div>
-
-        <div className="flex flex-col gap-8">
-          <div className={columnClass}>
-            <h2 className="text-white text-center text-lg font-bold uppercase tracking-wider">
-              Snipers
-            </h2>
-            <div className="flex flex-col gap-2">
-              {["Marshal", "Outlaw", "Operator"].map((name) => (
-                <div
-                  key={name}
-                  onClick={() => toggleWeapon(name)}
-                  className={isSpinning ? "cursor-not-allowed opacity-80" : ""}
-                >
-                  <WeaponFrame
-                    weapon={weapons[name]}
-                    status={getStatus(name)}
-                  />
-                </div>
-              ))}
-            </div>
-          </div>
-
-          <div className={columnClass}>
-            <h2 className="text-white text-center text-lg font-bold uppercase tracking-wider">
-              Machine Guns
-            </h2>
-            <div className="flex flex-col gap-2">
-              {["Ares", "Odin"].map((name) => (
-                <div
-                  key={name}
-                  onClick={() => toggleWeapon(name)}
-                  className={isSpinning ? "cursor-not-allowed opacity-80" : ""}
-                >
-                  <WeaponFrame
-                    weapon={weapons[name]}
-                    status={getStatus(name)}
-                  />
-                </div>
-              ))}
-            </div>
-          </div>
-        </div>
+        ))}
       </div>
     </div>
   );
