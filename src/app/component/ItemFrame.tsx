@@ -52,7 +52,7 @@ export function ItemFrame({
             status === "selected"
               ? "bg-select-light w-[40%]"
               : status === "excluded"
-                ? "bg-exclude-dark"
+                ? "bg-exclude-dark w-[70%]"
                 : "bg-standard-light"
           }`}
         />
