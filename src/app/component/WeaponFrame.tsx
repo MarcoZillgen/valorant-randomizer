@@ -24,6 +24,7 @@ export function WeaponFrame({
         width={256}
         height={128}
         loading="eager"
+        draggable={false}
       />
     </ItemFrame>
   );

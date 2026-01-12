@@ -5,7 +5,7 @@ export default async function Page() {
   const weapons = await getWeapons();
 
   return (
-    <main className="overflow-hidden h-screen bg-zinc-900 flex items-center justify-center">
+    <main className="overflow-hidden h-screen bg-zinc-900 flex items-center justify-center select-none">
       <WeaponLayout weapons={weapons} />;
     </main>
   );
