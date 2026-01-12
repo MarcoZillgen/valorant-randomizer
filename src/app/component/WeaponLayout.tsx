@@ -54,12 +54,12 @@ export function WeaponLayout({ weapons }: { weapons: Record<string, Weapon> }) {
     const randomPick = pool[Math.floor(Math.random() * pool.length)];
     setSelected(randomPick);
 
-    if (currentDelay > 500) {
+    if (currentDelay > 250) {
       setIsSpinning(false);
       return;
     }
 
-    const nextDelay = currentDelay * 1.1;
+    const nextDelay = currentDelay * 1.2;
 
     timeoutRef.current = setTimeout(() => {
       spin(nextDelay, pool);
